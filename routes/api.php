@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\API\Auth\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\Auth\AuthController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +17,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('login', [AuthController::class, 'login']);
+Route::post('register', [AuthController::class, 'register']);
 Route::post('refresh', [AuthController::class, 'refresh']);
+
 
 Route::group([
     'middleware' => 'auth:api'
@@ -26,3 +29,13 @@ Route::group([
     Route::post('logout', [AuthController::class, 'logout']);
 
 });
+
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+ 
+    return redirect('/home');
+})->middleware(['auth', 'signed'])->name('verification.verify');

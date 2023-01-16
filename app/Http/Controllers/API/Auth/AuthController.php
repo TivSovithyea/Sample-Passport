@@ -2,15 +2,28 @@
 
 namespace App\Http\Controllers\API\Auth;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use App\Http\Requests\RefreshRequest;
+use App\Http\Requests\RegisterRequest;
 
 class AuthController extends Controller
 {
+
+    public function register(RegisterRequest $request)
+    {
+        $user = User::create($request->only('username', 'email') + ['password' => bcrypt($request->password)]);
+        $user->sendEmailVerificationNotification();
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $user
+        ]);
+    }
 
     public function login(LoginRequest $request)
     {
